@@ -9,6 +9,7 @@ A toolkit to make your presentation nice
 このソフトはプレゼンテーションに下記の機能を提供します。  
 * 聴衆からのコメントを画面に表示する。  
 * コンピュータの画面を拡大する。  
+
 This application provides the following functions to your presentation.  
 * To display the messages posted by the audience.  
 * To magnify an object displayed in a screen.  
