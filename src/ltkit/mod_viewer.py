@@ -1,9 +1,10 @@
 # coding: utf-8
 import wx
+import mod_screenshot
 
 class MessageViewer:
     """displays received text on the screen.
-    This class is for displaying a text on a screen.
+    This class is used for displaying a text on a screen.
     A hollowed window (like a window region in Windows)
     is used to display a text.
     
@@ -34,6 +35,7 @@ class MessageViewer:
         )
         return None
 
+
     class MessageWindow:
         """manages each window.
         This class is used in CommentViewer.
@@ -44,6 +46,8 @@ class MessageViewer:
         """
         def __init__(self, message_struct):
             """initializes MessageWindow"""
+            # new Screenshot class
+            self.screenshot = mod_screenshot.Screenshot()
             # new visible frame (message)
             self.frame = wx.Frame(None,
                                   wx.ID_ANY,
@@ -54,21 +58,30 @@ class MessageViewer:
                            wx.FONTFAMILY_DEFAULT,
                            wx.FONTSTYLE_NORMAL,
                            wx.FONTWEIGHT_NORMAL)
-            # new panel to put the message on
-            self.panel = wx.Panel(self.frame,
-                                  wx.ID_ANY)
-            message = wx.StaticText(self.panel,
-                                    wx.ID_ANY,
-                                    message_struct["message"],
-                                    (0, 0))
-            message.SetForegroundColour(message_struct["color"])
-            message.SetFont(font)
             # calculates window size
             dc = wx.ScreenDC()
             dc.SetFont(font)
             size = dc.GetTextExtent(message_struct["message"])
             self.frame.SetPosition(message_struct["position"])
             self.frame.SetSize(size)
+            # new panel to put the message on
+            self.panel = wx.Panel(self.frame,
+                                  wx.ID_ANY)
+            screen_bitmap = self.screenshot.take()
+            screen_bitmap = self.screenshot.crop(screen_bitmap,
+                                                 (0, 0, 256, 64))
+            wx.StaticBitmap(self.panel,
+                            wx.ID_ANY,
+                            screen_bitmap,
+                            (0, 0))
+            message = wx.StaticText(self.panel,
+                                    wx.ID_ANY,
+                                    message_struct["message"],
+                                    (0, 0),
+                                    style=wx.TE_MULTILINE)
+            message.SetForegroundColour(message_struct["color"])
+            message.SetFont(font)
             # shows this frame
             self.frame.Show(True)
+            print(self.frame.GetClientRect())
             return None
