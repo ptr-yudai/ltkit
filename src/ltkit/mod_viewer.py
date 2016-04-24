@@ -4,9 +4,8 @@ import mod_screenshot
 
 class MessageViewer:
     """displays received text on the screen.
-    This class is used for displaying a text on a screen.
-    A hollowed window (like a window region in Windows)
-    is used to display a text.
+    This class is used to display a text on a screen.
+    A shaped window is used to make a message window.
     
     Attributes:
         parent_frame ... main invisible frame
@@ -52,36 +51,63 @@ class MessageViewer:
             self.frame = wx.Frame(None,
                                   wx.ID_ANY,
                                   message_struct["message"],
-                                  style=wx.CLOSE_BOX)
+                                  style = wx.FRAME_SHAPED | wx.NO_BORDER | wx.CLOSE_BOX )
+            # creates message bitmap
+            self.message_bitmap = self.create_bitmap_message(message_struct)
+            self.OnCreate("")
+            # calculates window size
+            self.frame.SetPosition(message_struct["position"])
+            self.frame.SetClientSize(self.message_bitmap.GetSize())
+            # sets shape
+            self.create_shape()
+            self.frame.Bind(wx.EVT_PAINT, self.OnPaint)
+            self.frame.Bind(wx.EVT_WINDOW_CREATE, self.OnCreate)
+            # shows this frame
+            self.frame.Show(True)
+            return None
+
+        def OnPaint(self, obj):
+            """on paint"""
+            dc = wx.PaintDC(self.frame)
+            dc.DrawBitmap(self.message_bitmap, 0, 0, True)
+            return None
+
+        def OnCreate(self, obj):
+            """on create"""
+            self.frame.SetShape(wx.RegionFromBitmap(self.message_bitmap))
+            return None
+
+        def create_shape(self):
+            dc = wx.ClientDC(self.frame)
+            dc.DrawBitmap(self.message_bitmap, 0, 0, True)
+            self.frame.SetShape(wx.RegionFromBitmap(self.message_bitmap))
+            return None
+
+        def create_bitmap_message(self, message_struct):
+            """creates bitmap of the message"""
+            mask_color = (255, 255, 255)
+            print mask_color
             # new font
             font = wx.Font(message_struct["size"],
                            wx.FONTFAMILY_DEFAULT,
                            wx.FONTSTYLE_NORMAL,
                            wx.FONTWEIGHT_NORMAL)
-            # calculates window size
-            dc = wx.ScreenDC()
+            # calculates message width and height
+            dc = wx.MemoryDC()
             dc.SetFont(font)
-            size = dc.GetTextExtent(message_struct["message"])
-            self.frame.SetPosition(message_struct["position"])
-            self.frame.SetSize(size)
-            # new panel to put the message on
-            self.panel = wx.Panel(self.frame,
-                                  wx.ID_ANY)
-            screen_bitmap = self.screenshot.take()
-            screen_bitmap = self.screenshot.crop(screen_bitmap,
-                                                 (0, 0, 256, 64))
-            wx.StaticBitmap(self.panel,
-                            wx.ID_ANY,
-                            screen_bitmap,
-                            (0, 0))
-            message = wx.StaticText(self.panel,
-                                    wx.ID_ANY,
-                                    message_struct["message"],
-                                    (0, 0),
-                                    style=wx.TE_MULTILINE)
-            message.SetForegroundColour(message_struct["color"])
-            message.SetFont(font)
-            # shows this frame
-            self.frame.Show(True)
-            print(self.frame.GetClientRect())
-            return None
+            size = dc.GetTextExtent(message_struct['message'])
+            # new bitmap
+            bitmap = wx.EmptyBitmap(size[0], size[1])
+            # draws text for shaping
+            dc.SelectObject(bitmap)
+            dc.Clear()
+            dc.SetTextForeground(message_struct['color'])
+            #dc.SetAntialiasMode(wx.ANTIALIAS_NONE)
+            dc.DrawText(message_struct['message'], 0, 0)
+            del dc
+            # sets mask
+            image = bitmap.ConvertToImage()
+            image.SetMaskColour(255, 255, 255)
+            image.SetMask(True)
+            bitmap = image.ConvertToBitmap()
+            return bitmap
