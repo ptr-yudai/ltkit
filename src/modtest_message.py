@@ -10,7 +10,7 @@ def main():
     message = {"message":"PythonでLTのやつ",
                "position":(0, 0),
                "size":48,
-               "color":(255, 0, 0)}
+               "color":(255, 0, 255)}
     message_viewer.display_text(message)
 
     ltkit.MainLoop()

@@ -85,10 +85,9 @@ class MessageViewer:
 
         def create_bitmap_message(self, message_struct):
             """creates bitmap of the message"""
-            mask_color = (255, 255, 255)
-            print mask_color
+            mask_color = self.create_mask_color(message_struct['color'])
             # new font
-            font = wx.Font(message_struct["size"],
+            font = wx.Font(message_struct['size'],
                            wx.FONTFAMILY_DEFAULT,
                            wx.FONTSTYLE_NORMAL,
                            wx.FONTWEIGHT_NORMAL)
@@ -101,13 +100,28 @@ class MessageViewer:
             # draws text for shaping
             dc.SelectObject(bitmap)
             dc.Clear()
+            dc.BeginDrawing()
+            dc.SetPen(wx.Pen(mask_color, 0))
+            dc.SetBrush(wx.Brush(mask_color, wx.SOLID))
+            dc.DrawRectangle(0, 0, size[0], size[1])
             dc.SetTextForeground(message_struct['color'])
             #dc.SetAntialiasMode(wx.ANTIALIAS_NONE)
             dc.DrawText(message_struct['message'], 0, 0)
+            dc.EndDrawing()
             del dc
             # sets mask
             image = bitmap.ConvertToImage()
-            image.SetMaskColour(255, 255, 255)
+            image.SetMaskColour(mask_color[0], mask_color[1], mask_color[2])
             image.SetMask(True)
             bitmap = image.ConvertToBitmap()
             return bitmap
+
+        def create_mask_color(self, mask_color):
+            """creates a mask color by text color"""
+            print mask_color
+            mask_color = list(mask_color)
+            if mask_color[0] == 0xFF:
+                mask_color[0] -= 1
+            else:
+                mask_color[0] += 1
+            return tuple(mask_color)
