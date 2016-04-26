@@ -20,9 +20,7 @@ class MessageViewer(wx.Frame):
                           wx.ID_ANY,
                           u"ltkit",
                           size = (32, 32))
-        # Initializes some variables
         self.message_frames = []
-        
         ### DEBUG : Shows the main frame ###
         self.Show(True)
         return None
@@ -35,7 +33,7 @@ class MessageViewer(wx.Frame):
     def display_message(self, message):
         """ Creates new message window """
         # Creates a new message frame
-        MessageViewer.MessageWindow(message)
+        self.message_frames.append(MessageViewer.MessageWindow(message))
         return None
 
 
@@ -46,7 +44,9 @@ class MessageViewer(wx.Frame):
         Once a MessageWindow class is created, it will be managed by itself.
         
         Attributes:
-            
+            frame_pos : the position where the frame is right now
+            frame_size : the size of the width and the height of the frame
+            timer_move : a timer that is called when the frame needs to move
         """
         def __init__(self, message):
             """ Initializes MessageWindow """
@@ -60,21 +60,19 @@ class MessageViewer(wx.Frame):
                               style = wx.FRAME_SHAPED
                               | wx.NO_BORDER
                               | wx.CLOSE_BOX
-                              | wx.STAY_ON_TOP)
+                              | wx.STAY_ON_TOP
+                              | wx.FRAME_NO_TASKBAR)
             # creates message bitmap
             self.message_bitmap = self.create_message_bitmap(message)
             self.OnCreate(None)
-            # Calculates and sets window size
-            self.frame_pos = list(message["position"])
-            self.SetPosition(self.frame_pos)
-            self.SetClientSize(self.message_bitmap.GetSize())
             # Sets a shape
+            self.frame_pos = list(message["position"])
             self.create_shape()
             # Sets a new timer to move the frame itself
             self.timer_move = wx.Timer(self)
-            self.Bind(wx.EVT_PAINT, self.OnPaint)
+            self.Bind(wx.EVT_PAINT, self.OnPaint, id = wx.ID_ANY)
             self.Bind(wx.EVT_WINDOW_CREATE, self.OnCreate)
-            self.Bind(wx.EVT_TIMER, self.OnTimer)
+            self.Bind(wx.EVT_TIMER, self.OnTimer, id = wx.ID_ANY)
             # Starts the timer
             self.timer_move.Start(message['speed'])
             # Shows this frame
@@ -105,6 +103,16 @@ class MessageViewer(wx.Frame):
 
         def create_shape(self):
             """ Creates a shaped window """
+            # Calculates the window position and size
+            self.frame_size = list(self.message_bitmap.GetSize())
+            if self.frame_size[0] <= wx.DisplaySize()[0]:
+                # Make windows size lager than the display size
+                # to make it run on linux (GTK)
+                self.frame_size[0] = wx.DisplaySize()[0] + 1
+            # Sets the window position and size
+            self.SetPosition(self.frame_pos)
+            self.SetClientSize(tuple(self.frame_size))
+            # Sets a new shape
             dc = wx.ClientDC(self)
             dc.DrawBitmap(self.message_bitmap, 0, 0, True)
             self.SetShape(wx.RegionFromBitmap(self.message_bitmap))
@@ -122,7 +130,9 @@ class MessageViewer(wx.Frame):
             # Calculates the width and the height of the message
             dc = wx.MemoryDC()
             dc.SetFont(font)
-            self.frame_size = dc.GetTextExtent(message['message'])
+            self.frame_size = list(dc.GetTextExtent(message['message']))
+            self.frame_size[0] += message['size'] / 10 # adds
+            self.frame_size[1] += message['size'] / 10 # shadow size
             # Creates and selects a new bitmap
             bitmap = wx.EmptyBitmap(self.frame_size[0], self.frame_size[1])
             dc.SelectObject(bitmap)
@@ -131,6 +141,9 @@ class MessageViewer(wx.Frame):
             dc.SetPen(wx.Pen(mask_color, 0))
             dc.SetBrush(wx.Brush(mask_color, wx.SOLID))
             dc.DrawRectangle(0, 0, self.frame_size[0], self.frame_size[1])
+            # Draws the shadow of the text
+            dc.SetTextForeground((16, 16, 16))
+            dc.DrawText(message['message'], message['size']/10, message['size']/10)
             # Draws the text
             dc.SetTextForeground(message['color'])
             dc.DrawText(message['message'], 0, 0)

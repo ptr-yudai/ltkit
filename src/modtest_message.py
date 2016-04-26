@@ -7,20 +7,20 @@ def main():
     message_viewer = mod_viewer.MessageViewer()
 
     # debug data
-    message = {"message":"This is a sample message...!",
+    message = {"message":"チョコはおいしい(哲学)",
                "position":(wx.DisplaySize()[0], 0),
-               "size":48,
-               "color":(255, 0, 255),
-               "speed":5}
+               "size":96,
+               "color":(255, 255, 255),
+               "speed":3}
     message_viewer.display_message(message)
-    """
-    message = {"message":"Are you sure?",
+
+    message = {"message":"This is a sample message!",
                "position":(wx.DisplaySize()[0], 0),
                "size":32,
                "color":(255, 0, 0),
-               "speed":50}
-    message_viewer.display_text(message)
-    """
+               "speed":5}
+    message_viewer.display_message(message)
+    
     ltkit.MainLoop()
     return
 
