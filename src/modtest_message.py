@@ -4,7 +4,7 @@ from ltkit import mod_viewer
 
 def main():
     ltkit = wx.App(False)
-    message_viewer = mod_viewer.MessageViewer(ltkit)
+    message_viewer = mod_viewer.MessageViewer()
 
     # debug data
     message = {"message":"This is a sample message...!",
@@ -12,7 +12,7 @@ def main():
                "size":48,
                "color":(255, 0, 255),
                "speed":5}
-    message_viewer.display_text(message)
+    message_viewer.display_message(message)
     """
     message = {"message":"Are you sure?",
                "position":(wx.DisplaySize()[0], 0),
