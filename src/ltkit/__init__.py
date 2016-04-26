@@ -1,2 +1,2 @@
-import mod_viewer
+import mod_message
 import mod_screenshot
