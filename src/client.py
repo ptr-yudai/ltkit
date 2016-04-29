@@ -14,6 +14,7 @@ class ClientFrame(wx.Frame):
                           id = wx.ID_ANY,
                           title = u"LT Toolkit",
                           style = wx.MINIMIZE_BOX
+                          | wx.MAXIMIZE_BOX
                           | wx.CLOSE_BOX
                           | wx.SYSTEM_MENU
                           | wx.CAPTION
