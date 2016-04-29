@@ -18,6 +18,7 @@ class ClientFrame(wx.Frame):
                           | wx.CLOSE_BOX
                           | wx.SYSTEM_MENU
                           | wx.CAPTION
+#                          | wx.RESIZE_BORDER
                           | wx.CLIP_CHILDREN,
                           size = (640, 480))
         # Creates a new tab control
@@ -25,10 +26,10 @@ class ClientFrame(wx.Frame):
                                        id = wx.ID_ANY,
                                        style = wx.NB_TOP,
                                        size = self.GetSize())
-        page1 = ClientFrame.ListenPanel(self.tab_control)
-        page3 = ClientFrame.HistoryPanel(self.tab_control)
-        self.tab_control.AddPage(page1, "Audience")
-        self.tab_control.AddPage(page3, "History")
+        self.page1 = ClientFrame.ListenPanel(self.tab_control)
+        self.page3 = ClientFrame.HistoryPanel(self.tab_control)
+        self.tab_control.AddPage(self.page1, "Audience")
+        self.tab_control.AddPage(self.page3, "History")
         # Shows this frame
         self.Center()
         self.Show()
@@ -55,7 +56,7 @@ class ClientFrame(wx.Frame):
             layout = []
             for i in range(3):
                 layout.append(wx.BoxSizer(wx.HORIZONTAL))
-            # Creates a button to configure the comment color
+            # Creates a button to create a soket
             self.button_connect = wx.Button(self,
                                             id = wx.ID_ANY,
                                             label = u"Connect",
@@ -79,7 +80,9 @@ class ClientFrame(wx.Frame):
                                        value = u"127.0.0.1",
                                        size = (256, 32))
             self.text_ip.SetFont(DEFAULT_FONT)
+            self.text_ip.SetToolTipString(u"Hostname or IP address")
             layout[0].Add(self.text_ip,
+                          proportion = 1,
                           flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                           border = 0)
             # text = "with port"
@@ -96,6 +99,7 @@ class ClientFrame(wx.Frame):
                                          value = u"8080",
                                          size = (64, 32))
             self.text_port.SetFont(DEFAULT_FONT)
+            self.text_port.SetToolTipString(u"Port number")
             layout[0].Add(self.text_port,
                           flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                           border = 0)
@@ -109,6 +113,7 @@ class ClientFrame(wx.Frame):
             self.list_history.InsertColumn(1, u"Date")
             self.list_history.InsertColumn(2, u"ID")
             layout[1].Add(self.list_history,
+                          proportion = 1,
                           flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                           border = 0)
             # Creates a button to configure the comment color
@@ -116,8 +121,9 @@ class ClientFrame(wx.Frame):
                                           id = wx.ID_ANY,
                                           label = u"COLOR",
                                           size = (64, 32))
+            self.button_color.SetBackgroundColour(self.message_color)
             self.button_color.SetForegroundColour(self.message_color)
-            self.button_color.SetToolTipString(u"message color")
+            self.button_color.SetToolTipString(u"Message color")
             self.button_color.Bind(wx.EVT_BUTTON, self.configure_color)
             layout[2].Add(self.button_color,
                           flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
@@ -127,10 +133,11 @@ class ClientFrame(wx.Frame):
                                             id = wx.ID_ANY,
                                             size = (256, 32))
             self.text_message.SetFont(DEFAULT_FONT)
-            self.text_message.SetToolTipString("message")
+            self.text_message.SetToolTipString("Message")
             layout[2].Add(self.text_message,
                           flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                           border = 0)
+            print(self.GetSize())
             # Creates a button to post a message
             self.button_send = wx.Button(self,
                                          id = wx.ID_ANY,
@@ -139,6 +146,7 @@ class ClientFrame(wx.Frame):
             self.button_send.SetFont(DEFAULT_FONT)
             self.button_send.Bind(wx.EVT_BUTTON, self.post_message)
             layout[2].Add(self.button_send,
+                          proportion = 1,
                           flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                           border = 0)
             # Sets sizer
@@ -161,6 +169,7 @@ class ClientFrame(wx.Frame):
                 # Reflects the new color
                 data = dialog.GetColourData()
                 self.message_color = data.GetColour().Get()
+                self.button_color.SetBackgroundColour(self.message_color)
                 self.button_color.SetForegroundColour(self.message_color)
             dialog.Destroy()
             return
