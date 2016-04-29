@@ -2,7 +2,7 @@ LT Toolkit - BETA
 ====
 
 プレゼンを便利にするためのツールキット  
-A toolkit to make your presentation nice  
+A toolkit to make your presentation nicer  
 
 ## Description
 
@@ -10,8 +10,8 @@ A toolkit to make your presentation nice
 * 聴衆からのコメントを画面に表示する。  
 * 視聴者にアンケートを取る。  
 
-This application provides the following functions to your presentation. (in the future)  
-* To display the messages posted by the audience.  
+This application will provides the following functions to your presentation. (in the future)  
+* To display the messages posted by the audience on the desktop screen.  
 * To ask the audience some questionaries.  
 
 ## Demo
