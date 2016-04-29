@@ -1,3 +1,4 @@
+import select
 import socket
 import wx
 
@@ -130,6 +131,16 @@ class ClientFrame(wx.Frame):
             layout[2].Add(self.text_message,
                           flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                           border = 0)
+            # Creates a button to post a message
+            self.button_send = wx.Button(self,
+                                         id = wx.ID_ANY,
+                                         label = u"Post",
+                                         size = (64, 32))
+            self.button_send.SetFont(DEFAULT_FONT)
+            self.button_send.Bind(wx.EVT_BUTTON, self.post_message)
+            layout[2].Add(self.button_send,
+                          flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
+                          border = 0)
             # Sets sizer
             layout_main.Add(layout[0])
             layout_main.Add(layout[1])
@@ -197,6 +208,9 @@ class ClientFrame(wx.Frame):
             self.socket.close()
             # Enables 'connect' button
             self.button_connect.Enable()
+            return
+
+        def post_message(self, event):
             return
 
     class HistoryPanel(wx.Panel):
