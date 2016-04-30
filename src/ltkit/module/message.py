@@ -13,18 +13,18 @@ class MessageViewer(wx.Frame):
     
     def __init__(self):
         """ Initializes MessageViewer class """
-        # Creates a new frame (main frame)
+        # Create a new frame (main frame)
         wx.Frame.__init__(self,
                           None,
                           wx.ID_ANY,
                           u"ltkit",
                           size = (32, 32))
-        ### DEBUG : Shows the main frame ###
+        ### DEBUG : Show the main frame ###
         self.Show(True)
         return None
 
     def __del__(self):
-        """ Destroys MessageViewer class """
+        """ Destroy MessageViewer class """
         print("[DEBUG] MessageViewer is deleted.")
         return None
 
@@ -167,9 +167,9 @@ class MessageViewer(wx.Frame):
             if message.get('message', None) == None:
                 return False
             if message.get('position', None) == None:
-                return False
+                message['position'] = (wx.GetDisplaySize()[0], 0)
             if message.get('size', None) == None:
-                message['size'] = 32
+                message['size'] = 16
             if message.get('color', None) == None:
                 message['color'] = (240, 240, 240)
             if message.get('speed', None) == None:

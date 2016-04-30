@@ -1,5 +1,6 @@
 import threading
 import wx
+from ..module import message
 
 class Network:
     def __init__(self, host, port):
@@ -8,6 +9,7 @@ class Network:
         self.port = port
         self.thread = threading.Thread(target = self.establish)
         self.thread.start()
+        self.message_viewer = message.MessageViewer()
         return
 
     def establish(self):
@@ -43,6 +45,7 @@ class Network:
 
     def proc_message(self, recv_data):
         import packet
+        from ..module import message
         """ Process received message """
         # Check type
         if recv_data.get(u'type', None) == None:
@@ -53,6 +56,8 @@ class Network:
             recv_data[u'id'] = "unknown"
             recv_data[u'date'] = wx.DateTime.Now().Format("%H:%M:%S")
             self.broadcast(packet.compress(recv_data))
+            # Dispay the message (avoid assertionerror)
+            wx.CallAfter(self.display_message, recv_data)
         else:
             # Invalid
             return
@@ -68,4 +73,9 @@ class Network:
                 except:
                     socket.close()
                     self.socket_list.remove(socket)
+        return
+
+    def display_message(self, recv_data):
+        """ Display a message on the desktop screen (with using the MessageViewer class)"""
+        self.message_viewer.display_message(recv_data)
         return

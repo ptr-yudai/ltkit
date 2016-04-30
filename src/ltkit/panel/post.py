@@ -98,7 +98,7 @@ class Panel(wx.Panel):
         self.spin_size = wx.SpinCtrl(self,
                                        id = wx.ID_ANY,
                                        size = (64, 32),
-                                       min = 8, max = 32, initial = 16)
+                                       min = 16, max = 64, initial = 32)
         self.spin_size.SetToolTipString(u"Message size")
         self.layout[2].Add(self.spin_size,
                            flag = wx.ALIGN_LEFT | wx.ALL,
