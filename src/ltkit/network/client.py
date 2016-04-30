@@ -25,10 +25,15 @@ class Network:
             return
         # Create a message structure
         message = {
+            "type": "message",
             "message": panel_post.text_message.GetValue(),
             "size": int(panel_post.spin_size.GetValue()),
             "color": panel_post.message_color
         }
+        # Check if the message is empty
+        if message['message'] == "":
+            return
+        # Compress the message
         send_data = packet.compress(message)
         # Post the message
         self.client_socket.send(send_data)
@@ -50,9 +55,20 @@ class Network:
             try:
                 recv_data = packet.decompress(self.client_socket.recv(4096))
             except:
+                self.client_socket.close()
                 break
-            # Insert the message into the listview (in order to avoid assertionerror)
-            wx.CallAfter(panel_post.append_message, recv_data)
+            # Invalid message
+            if recv_data == {}:
+                continue
+            if recv_data.get(u'type', None) == None:
+                continue
+            # Process message depending on its type
+            if recv_data[u'type'] == u"message":
+                # Insert the message into the listview (in order to avoid assertionerror)
+                wx.CallAfter(panel_post.append_message, recv_data)
+            elif recv_data[u'type'] == u"answer":
+                # [DEBUG] Print debug string
+                print("answer")
         return
 
     def create_socket(self, event):

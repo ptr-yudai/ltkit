@@ -11,7 +11,6 @@ def compress(message):
     except:
         return ''
 
-
 def decompress(message):
     try:
         return json.loads(

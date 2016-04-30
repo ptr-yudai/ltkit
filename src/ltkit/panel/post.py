@@ -155,9 +155,12 @@ class Panel(wx.Panel):
 
     def append_message(self, message):
         """ Insert new message into the listview """
-        index = self.list_history.GetItemCount()
-        self.list_history.InsertStringItem(index, message['message'])
-        self.list_history.SetStringItem(index, 1, message['date'])
-        self.list_history.SetStringItem(index, 2, message['id'])
+        try:
+            index = self.list_history.GetItemCount()
+            self.list_history.InsertStringItem(index, message['message'])
+            self.list_history.SetStringItem(index, 1, message['date'])
+            self.list_history.SetStringItem(index, 2, message['id'])
+        except:
+            return
         return
 

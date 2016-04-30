@@ -33,14 +33,30 @@ class Network:
                     try:
                         # Receive message
                         recv_data = packet.decompress(socket.recv(4096))
-                        recv_data[u'id'] = "unknown"
-                        recv_data[u'date'] = wx.DateTime.Now().Format("%H:%M:%S")
-                        print(recv_data)
-                        self.broadcast(packet.compress(recv_data))
+                        # Process the message
+                        self.proc_message(recv_data)
                     except:
                         # Connection refused
                         socket.close()
                         self.socket_list.remove(socket)
+        return
+
+    def proc_message(self, recv_data):
+        import packet
+        """ Process received message """
+        # Check type
+        if recv_data.get(u'type', None) == None:
+            return
+        # Append some data
+        if recv_data[u'type'] == "message":
+            # Message
+            recv_data[u'id'] = "unknown"
+            recv_data[u'date'] = wx.DateTime.Now().Format("%H:%M:%S")
+            self.broadcast(packet.compress(recv_data))
+        else:
+            # Invalid
+            return
+        # [DEBUG] Print debug string
         return
 
     def broadcast(self, send_data):

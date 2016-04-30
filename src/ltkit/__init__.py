@@ -1,4 +1,4 @@
-import mod_message
+import module.message
 import mod_screenshot
 import network.server
 import network.client
