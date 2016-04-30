@@ -6,11 +6,11 @@ class Panel(wx.Panel):
     """ Creates a panel of the audience
     This class is a panel which has all functions for the audience.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, inet):
         """Initializes ListenPanel class"""
         # Inits variables
+        self.inet = inet
         self.message_color = (240, 240, 240)
-        self.socket = None
         # new panel
         wx.Panel.__init__(self,
                           parent)
@@ -30,7 +30,7 @@ class Panel(wx.Panel):
                                         label = u"Connect",
                                         size = (96, 32))
         self.button_connect.SetFont(DEFAULT_FONT)
-        self.button_connect.Bind(wx.EVT_BUTTON, self.connect)
+        self.button_connect.Bind(wx.EVT_BUTTON, self.inet.create_socket)
         self.layout[0].Add(self.button_connect,
                            flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                            border = 0)
@@ -153,52 +153,6 @@ class Panel(wx.Panel):
         dialog.Destroy()
         return
 
-    def connect(self, event):
-        """ Connects to the server """
-        print(event)
-        # Gets the hostname
-        host = self.text_ip.GetValue()
-        # Gets the port number
-        try:
-            port = int(self.text_port.GetValue())
-        except ValueError:
-            wx.MessageBox("The port number is invalid.\nOnly numeric characters can be used.",
-                          "LT Toolkit",
-                          style = wx.OK | wx.ICON_ERROR)
-            return
-        # Disables 'connect' button
-        self.button_connect.Disable()
-        # Creates new socket
-        if self.socket != None:
-            self.socket.close()
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(10.0) # timeout
-        # Tries to connect to the host
-        try:
-            self.socket.connect((host, port))
-        except socket.timeout:
-            # Timeout
-            wx.MessageBox("Timeout!",
-                          "LT Toolkit",
-                          style = wx.OK | wx.ICON_ERROR)
-            self.socket = None
-            # Enables 'connect' button
-            self.button_connect.Enable()
-            return
-        except:
-            # Failed to connect
-            wx.MessageBox("Failed to connect to {0}:{1}.\nPlease make sure that the hostname and the port number you entered is correct.".format(host, port),
-                          "LT Toolkit",
-                          style = wx.OK | wx.ICON_ERROR)
-            self.socket = None
-            # Enables 'connect' button
-            self.button_connect.Enable()
-            return
-        self.socket.close()
-        # Enables 'connect' button
-        self.button_connect.Enable()
-        return
-    
     def post_message(self, event):
         self.text_message.Clear()
         return

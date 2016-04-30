@@ -25,16 +25,16 @@ class ClientFrame(wx.Frame):
                           size = (640, 480))
         self.SetMinSize((640, 480))
         # Internetworking Module
-        self.inet = network.Network()
+        self.inet = network.Network(self)
         # Creates a new tab control
         self.tab_control = wx.Notebook(self,
                                        id = wx.ID_ANY,
                                        style = wx.NB_TOP,
                                        size = self.GetSize())
-        page1 = post.Panel(self.tab_control)
-        page2 = questionary.Panel(self.tab_control)
-        self.tab_control.AddPage(page1, "Post")
-        self.tab_control.AddPage(page2, "Questionary")
+        self.panel_post = post.Panel(self.tab_control, self.inet)
+        self.panel_questionary = questionary.Panel(self.tab_control)
+        self.tab_control.AddPage(self.panel_post, "Post")
+        self.tab_control.AddPage(self.panel_questionary, "Questionary")
         # Shows this frame
         self.Center()
         self.Show()
