@@ -12,3 +12,7 @@ def decompress(message):
     return json.loads(
         zlib.decompress(message)
     )
+
+def create_id(ip_address):
+    
+    return
