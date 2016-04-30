@@ -1,1 +1,2 @@
-import network
+import client_inet
+import packet
