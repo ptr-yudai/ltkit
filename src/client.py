@@ -1,5 +1,5 @@
 import wx
-from ltkit.module import network
+from ltkit.module import client_inet
 from ltkit.panel import post
 from ltkit.panel import questionary
 
@@ -25,7 +25,7 @@ class ClientFrame(wx.Frame):
                           size = (640, 480))
         self.SetMinSize((640, 480))
         # Internetworking Module
-        self.inet = network.Network(self)
+        self.inet = client_inet.Network(self)
         # Creates a new tab control
         self.tab_control = wx.Notebook(self,
                                        id = wx.ID_ANY,
