@@ -94,13 +94,13 @@ class Panel(wx.Panel):
         self.layout[2].Add(self.button_color,
                            flag = wx.ALIGN_LEFT | wx.ALL,
                            border = 0)
-        # Creates a button to configure the character size
-        self.button_size = wx.SpinCtrl(self,
+        # Creates a spin control to configure the character size
+        self.spin_size = wx.SpinCtrl(self,
                                        id = wx.ID_ANY,
                                        size = (64, 32),
                                        min = 8, max = 32, initial = 16)
-        self.button_size.SetToolTipString(u"Message size")
-        self.layout[2].Add(self.button_size,
+        self.spin_size.SetToolTipString(u"Message size")
+        self.layout[2].Add(self.spin_size,
                            flag = wx.ALIGN_LEFT | wx.ALL,
                            border = 0)
         # Creates a text control to enter the message into
@@ -108,7 +108,7 @@ class Panel(wx.Panel):
                                         id = wx.ID_ANY,
                                         style = wx.TE_PROCESS_ENTER,
                                         size = (320, 32))
-        self.text_message.Bind(wx.EVT_TEXT_ENTER, self.post_message)
+        self.text_message.Bind(wx.EVT_TEXT_ENTER, self.inet.post_message)
         self.text_message.SetFont(DEFAULT_FONT)
         self.text_message.SetMaxLength(60)
         self.text_message.SetToolTipString("Message")
@@ -122,7 +122,7 @@ class Panel(wx.Panel):
                                      label = u"Post",
                                      size = (64, 32))
         self.button_send.SetFont(DEFAULT_FONT)
-        self.button_send.Bind(wx.EVT_BUTTON, self.post_message)
+        self.button_send.Bind(wx.EVT_BUTTON, self.inet.post_message)
         self.layout[2].Add(self.button_send,
                            flag = wx.ALIGN_LEFT | wx.ALL,
                            border = 0)
@@ -151,8 +151,4 @@ class Panel(wx.Panel):
             self.button_color.SetBackgroundColour(self.message_color)
             self.button_color.SetForegroundColour(self.message_color)
         dialog.Destroy()
-        return
-
-    def post_message(self, event):
-        self.text_message.Clear()
         return

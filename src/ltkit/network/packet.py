@@ -10,6 +10,5 @@ def compress(message):
 
 def decompress(message):
     return json.loads(
-        zlib.decompress(message,
-                        9)
+        zlib.decompress(message)
     )

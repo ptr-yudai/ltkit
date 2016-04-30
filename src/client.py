@@ -25,7 +25,7 @@ class ClientFrame(wx.Frame):
                           size = (640, 480))
         self.SetMinSize((640, 480))
         # Internetworking Module
-        self.inet = client.Network(self)
+        self.inet = client.Client(self)
         # Creates a new tab control
         self.tab_control = wx.Notebook(self,
                                        id = wx.ID_ANY,

@@ -20,7 +20,7 @@ class ServerFrame(wx.Frame):
                           | wx.CLIP_CHILDREN,
                           size = (640, 480))
         # Creates server
-        self.server = server.Network("127.0.0.1", 8001)
+        self.server = server.Network("127.0.0.1", 8080)
         # Shows this frame
         self.Center()
         self.Show()

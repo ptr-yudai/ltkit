@@ -2,12 +2,13 @@ import SocketServer
 import socket
 import threading
 import wx
+import packet
 
 class Handler(SocketServer.BaseRequestHandler, object):
     def handle(self):
-        #
-        # PROCEDURE HERE
-        #
+        print("HERE I AM!")
+        recv_data = self.request.recv(4096)
+        print(packet.decompress(recv_data))
         return
 
 class Server(SocketServer.ThreadingTCPServer, object):
