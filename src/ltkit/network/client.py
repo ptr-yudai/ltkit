@@ -48,22 +48,11 @@ class Network:
             read_sockets, wrote_sockets, error_sockets = select.select([self.client_socket], [], [])
             # Receive new message
             try:
-                data = packet.decompress(self.client_socket.recv(4096))
-                print data
+                recv_data = packet.decompress(self.client_socket.recv(4096))
             except:
                 break
-            # Insert the message into the listview
-            """
-            print("a")
-            index = panel_post.list_history.GetItemCount()
-            print("b")
-            panel_post.list_history.InsertStringItem(index, data['message'])
-            print("c")
-            panel_post.list_history.SetStringItem(index, 1, data['date'])
-            print("d")
-            panel_post.list_history.SetStringItem(index, 2, data['id'])
-            print("e")
-            """
+            # Insert the message into the listview (in order to avoid assertionerror)
+            wx.CallAfter(panel_post.append_message, recv_data)
         return
 
     def create_socket(self, event):
