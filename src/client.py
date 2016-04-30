@@ -1,5 +1,7 @@
 import wx
-from ltkit import panel_audience
+from ltkit.module import network
+from ltkit.panel import post
+from ltkit.panel import questionary
 
 class ClientFrame(wx.Frame):
     """ Main program. (Client)
@@ -22,30 +24,20 @@ class ClientFrame(wx.Frame):
                           | wx.CLIP_CHILDREN,
                           size = (640, 480))
         self.SetMinSize((640, 480))
+        # Internetworking Module
+        self.inet = network.Network()
         # Creates a new tab control
         self.tab_control = wx.Notebook(self,
                                        id = wx.ID_ANY,
                                        style = wx.NB_TOP,
                                        size = self.GetSize())
-        page1 = panel_audience.PanelAudience(self.tab_control)
-        page3 = ClientFrame.HistoryPanel(self.tab_control)
-        self.tab_control.AddPage(page1, "Audience")
-        self.tab_control.AddPage(page3, "History")
+        page1 = post.Panel(self.tab_control)
+        page2 = questionary.Panel(self.tab_control)
+        self.tab_control.AddPage(page1, "Post")
+        self.tab_control.AddPage(page2, "Questionary")
         # Shows this frame
         self.Center()
         self.Show()
-
-    
-
-    class HistoryPanel(wx.Panel):
-        """ Creates a panel of the message list
-        This class is a panel of the message list on the tab control.
-        """
-        def __init__(self, parent):
-            """Initializes HistoryPanel class"""
-            wx.Panel.__init__(self, parent)
-            return
-
 
 def main():
     # Initializes a new application
