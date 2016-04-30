@@ -1,6 +1,5 @@
-import select
-import socket
 import wx
+from ltkit.network import server
 
 class ServerFrame(wx.Frame):
     """ Main program. (Server)
@@ -20,7 +19,8 @@ class ServerFrame(wx.Frame):
                           | wx.CAPTION
                           | wx.CLIP_CHILDREN,
                           size = (640, 480))
-        
+        # Creates server
+        self.server = server.Network("127.0.0.1", 8001)
         # Shows this frame
         self.Center()
         self.Show()
