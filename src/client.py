@@ -1,7 +1,7 @@
 import wx
 from ltkit.network import client
-from ltkit.panel import post
-from ltkit.panel import questionary
+from ltkit.panel.client import post
+from ltkit.panel.client import questionary
 
 class ClientFrame(wx.Frame):
     """ Main program. (Client)
@@ -26,7 +26,7 @@ class ClientFrame(wx.Frame):
         self.SetMinSize((640, 480))
         # Internetworking Module
         self.inet = client.Network(self)
-        # Creates a new tab control
+        # Create a new tab control
         self.tab_control = wx.Notebook(self,
                                        id = wx.ID_ANY,
                                        style = wx.NB_TOP,
@@ -35,7 +35,7 @@ class ClientFrame(wx.Frame):
         self.panel_questionary = questionary.Panel(self.tab_control)
         self.tab_control.AddPage(self.panel_post, "Post")
         self.tab_control.AddPage(self.panel_questionary, "Questionary")
-        # Shows this frame
+        # Show this frame
         self.Center()
         self.Show()
 

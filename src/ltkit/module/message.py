@@ -20,7 +20,7 @@ class MessageViewer(wx.Frame):
                           u"ltkit",
                           size = (32, 32))
         ### DEBUG : Show the main frame ###
-        self.Show(True)
+        #self.Show(True)
         return None
 
     def __del__(self):

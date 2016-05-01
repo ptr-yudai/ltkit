@@ -59,16 +59,17 @@ class Network:
                 break
             # Invalid message
             if recv_data == {}:
-                continue
+                break
             if recv_data.get(u'type', None) == None:
                 continue
             # Process message depending on its type
             if recv_data[u'type'] == u"message":
                 # Insert the message into the listview (in order to avoid assertionerror)
                 wx.CallAfter(panel_post.append_message, recv_data)
-            elif recv_data[u'type'] == u"answer":
+            elif recv_data[u'type'] == u"question":
+                
                 # [DEBUG] Print debug string
-                print("answer")
+                print("question")
         return
 
     def create_socket(self, event):
@@ -114,6 +115,7 @@ class Network:
             return
         # Create listen thread
         self.thread_listen = threading.Thread(target = self.listen)
+        self.thread_listen.setDaemon(True)
         self.thread_listen.start()
         # Enable 'connect' button
         panel_post.button_connect.SetLabel(u"Disconnect")

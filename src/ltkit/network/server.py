@@ -7,9 +7,15 @@ class Network:
         """ Initialize Network class """
         self.host = host
         self.port = port
+        # Thread
         self.thread = threading.Thread(target = self.establish)
+        self.thread.setDaemon(True)
         self.thread.start()
+        # Messanger
         self.message_viewer = message.MessageViewer()
+        return
+
+    def __del__(self):
         return
 
     def establish(self):
@@ -45,7 +51,6 @@ class Network:
 
     def proc_message(self, recv_data):
         import packet
-        from ..module import message
         """ Process received message """
         # Check type
         if recv_data.get(u'type', None) == None:
@@ -66,6 +71,10 @@ class Network:
 
     def broadcast(self, send_data):
         """ Broadcast message """
+        # Check data
+        if send_data == "":
+            return
+        # Broadcast
         for socket in self.socket_list:
             if socket != self.server_socket:
                 try:
