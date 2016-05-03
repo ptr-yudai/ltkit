@@ -31,14 +31,14 @@ class ServerFrame(wx.Frame):
 #        self.tab_control.AddPage(self.panel_post, "Listen")
         self.tab_control.AddPage(self.panel_questionnaire, "Questionnaire")
         # Create server
-        self.server = server.Network("127.0.0.1", 8080)
+        self.server = server.Network(self, "127.0.0.1", 8080)
         # Show this frame
         self.Center()
         self.Show()
 
     def onExit(self, event):
         """ Quit application """
-        self.server.thread_available = False
+        self.server.thread.terminate()
         self.Destroy()
         return
 

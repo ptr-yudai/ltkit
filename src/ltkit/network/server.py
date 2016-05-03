@@ -1,19 +1,17 @@
-import threading
+import multiprocessing
 import wx
 from ..module import message
 
 class Network:
-    def __init__(self, host, port):
+    def __init__(self, parent, host, port):
         """ Initialize Network class """
         self.host = host
         self.port = port
         # Thread
-        self.thread = threading.Thread(target = self.establish)
-        self.thread.setDaemon(True)
+        self.thread = multiprocessing.Process(target = self.establish)
         self.thread.start()
-        self.thread_available = True
         # Messanger
-        self.message_viewer = message.MessageViewer()
+        self.message_viewer = message.MessageViewer(parent)
         return
 
     def __del__(self):
@@ -32,8 +30,7 @@ class Network:
         self.socket_list.append(self.server_socket)
         # Listen
         while True:
-            read_sockets, wrote_sockets, error_sockets = select.select(self.socket_list, [], [], 1)
-            print(self.thread_available)
+            read_sockets, wrote_sockets, error_sockets = select.select(self.socket_list, [], [])
             # 
             for socket in read_sockets:
                 if socket == self.server_socket:
@@ -50,9 +47,6 @@ class Network:
                         # Connection refused
                         socket.close()
                         self.socket_list.remove(socket)
-            # Check if the main frame is closed
-            if self.thread_available == False:
-                break
         return
 
     def proc_message(self, recv_data):

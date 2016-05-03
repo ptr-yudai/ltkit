@@ -11,11 +11,11 @@ class MessageViewer(wx.Frame):
         text_frames .... a list of message windows
     """
     
-    def __init__(self):
+    def __init__(self, parent):
         """ Initializes MessageViewer class """
         # Create a new frame (main frame)
         wx.Frame.__init__(self,
-                          None,
+                          parent,
                           wx.ID_ANY,
                           u"ltkit",
                           size = (32, 32))
