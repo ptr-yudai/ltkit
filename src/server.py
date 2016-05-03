@@ -1,6 +1,6 @@
 import wx
 from ltkit.network import server
-from ltkit.panel.server import questionary
+from ltkit.panel.server import questionnaire
 
 class ServerFrame(wx.Frame):
     """ Main program. (Server)
@@ -27,9 +27,9 @@ class ServerFrame(wx.Frame):
                                        style = wx.NB_TOP,
                                        size = self.GetSize())
 #        self.panel_post = post.Panel(self.tab_control, self.inet)
-        self.panel_questionary = questionary.Panel(self.tab_control)
+        self.panel_questionnaire = questionnaire.Panel(self.tab_control)
 #        self.tab_control.AddPage(self.panel_post, "Listen")
-        self.tab_control.AddPage(self.panel_questionary, "Questionary")
+        self.tab_control.AddPage(self.panel_questionnaire, "Questionnaire")
         # Create server
         self.server = server.Network("127.0.0.1", 8080)
         # Show this frame
@@ -38,7 +38,7 @@ class ServerFrame(wx.Frame):
 
     def onExit(self, event):
         """ Quit application """
-        del self.server.thread
+        self.server.thread_available = False
         self.Destroy()
         return
 

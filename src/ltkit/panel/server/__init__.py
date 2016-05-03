@@ -1,1 +1,1 @@
-import questionary
+import questionnaire

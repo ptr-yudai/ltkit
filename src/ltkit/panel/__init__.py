@@ -1,3 +1,3 @@
 import client.post
-import client.questionary
-import server.questionary
+import client.questionnaire
+import server.questionnaire

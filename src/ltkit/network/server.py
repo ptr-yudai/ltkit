@@ -11,6 +11,7 @@ class Network:
         self.thread = threading.Thread(target = self.establish)
         self.thread.setDaemon(True)
         self.thread.start()
+        self.thread_available = True
         # Messanger
         self.message_viewer = message.MessageViewer()
         return
@@ -31,7 +32,9 @@ class Network:
         self.socket_list.append(self.server_socket)
         # Listen
         while True:
-            read_sockets, wrote_sockets, error_sockets = select.select(self.socket_list, [], [])
+            read_sockets, wrote_sockets, error_sockets = select.select(self.socket_list, [], [], 1)
+            print(self.thread_available)
+            # 
             for socket in read_sockets:
                 if socket == self.server_socket:
                     # New audience
@@ -47,6 +50,9 @@ class Network:
                         # Connection refused
                         socket.close()
                         self.socket_list.remove(socket)
+            # Check if the main frame is closed
+            if self.thread_available == False:
+                break
         return
 
     def proc_message(self, recv_data):

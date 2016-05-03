@@ -1,2 +1,2 @@
 import post
-import questionary
+import questionnaire
