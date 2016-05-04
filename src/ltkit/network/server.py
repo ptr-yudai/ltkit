@@ -16,7 +16,34 @@ class Network:
         self.thread_stop.set()
         self.thread.join()
         return
-        
+    
+
+    def post_message(self, event):
+        """ Post a message to all the clients """
+        import packet
+        panel_post = self.server.panel_post
+        # Create a message structure
+        message = {
+            "type": "message",
+            "message": panel_post.text_message.GetValue(),
+            "size": int(panel_post.spin_size.GetValue()),
+            "color": panel_post.message_color,
+            "date": wx.DateTime.Now().Format("%H:%M:%S"),
+            "id": "<master>"
+        }
+        # Check if the message is empty
+        if message['message'] == "":
+            return
+        # Post the message
+        self.broadcast(packet.compress(message))
+        # Append the message onto the listview
+        wx.CallAfter(panel_post.append_message, message)
+        # Dispay the message (avoid assertionerror)
+        wx.CallAfter(self.display_message, message)
+        # Clear text control
+        panel_post.text_message.Clear()
+        return
+
     def create_socket(self, event):
         """ Listen to the clients """
         panel_post = self.server.panel_post
@@ -66,7 +93,14 @@ class Network:
         self.id_list = {}
         # Open the port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind((self.host, self.port))
+        try:
+            self.server_socket.bind((self.host, self.port))
+        except:
+            # Failed to open the port
+            wx.MessageBox(u"Failed to open the port {0}.\nPlease make sure that the port is not in use now.".format(self.port),
+                          u"LT Toolkit",
+                          style = wx.OK | wx.ICON_ERROR)
+            return
         self.server_socket.listen(10)
         self.socket_list.append(self.server_socket)
         # Listen
@@ -99,8 +133,9 @@ class Network:
         return
 
     def proc_message(self, socket, recv_data):
-        import packet
         """ Process received message """
+        import packet
+        panel_post = self.server.panel_post
         # Check type
         if recv_data.get(u'type', None) == None:
             return
@@ -114,6 +149,8 @@ class Network:
             recv_data[u'date'] = wx.DateTime.Now().Format("%H:%M:%S")
             # Send to all client
             self.broadcast(packet.compress(recv_data))
+            # Append the message onto the listview
+            wx.CallAfter(panel_post.append_message, recv_data)
             # Dispay the message (avoid assertionerror)
             wx.CallAfter(self.display_message, recv_data)
         else:

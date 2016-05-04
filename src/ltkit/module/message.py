@@ -78,7 +78,7 @@ class MessageViewer(wx.Frame):
         def OnTimer(self, event):
             """on timer"""
             # Moves the frame
-            self.frame_pos[0] -= 1
+            self.frame_pos[0] -= 2
             self.SetPosition((self.frame_pos[0], self.frame_pos[1]))
             if self.frame_pos[0] <= -self.frame_size[0]:
                 # Kills the frame when it goes out of the screen
@@ -164,14 +164,32 @@ class MessageViewer(wx.Frame):
             """ Fixes the message structure and checks the banned words """
             # Fixes the message structure
             if message.get('message', None) == None:
+                # no message
                 return False
+
             if message.get('position', None) == None:
+                # no position -> default position
                 message['position'] = (wx.GetDisplaySize()[0], 0)
+
             if message.get('size', None) == None:
+                #
                 message['size'] = 16
+
             if message.get('color', None) == None:
+                # no color
                 message['color'] = (240, 240, 240)
+            elif filter(lambda x:x > 255, message['color']):
+                # invalid color
+                message['color'] = (240, 240, 240)
+
             if message.get('speed', None) == None:
-                message['speed'] = 5
+                # no speed
+                message['speed'] = 8
+            elif message['speed'] < 1 or message['speed'] > 20:
+                # invalid speed
+                message['speed'] = 8
+
+            
+
             # Checks the banned expressions
             return True

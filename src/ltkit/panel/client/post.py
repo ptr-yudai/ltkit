@@ -160,6 +160,9 @@ class Panel(wx.Panel):
             self.list_history.InsertStringItem(index, message['message'])
             self.list_history.SetStringItem(index, 1, message['date'])
             self.list_history.SetStringItem(index, 2, message['id'])
+            # is master
+            if message['id'] == u"<master>":
+                self.list_history.SetItemTextColour(index, (255, 0, 0))
         except:
             return
         return

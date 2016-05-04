@@ -86,7 +86,7 @@ class Panel(wx.Panel):
         self.button_color.SetBackgroundColour(self.message_color)
         self.button_color.SetForegroundColour(self.message_color)
         self.button_color.SetToolTipString(u"Message color")
-#        self.button_color.Bind(wx.EVT_BUTTON, self.configure_color)
+        self.button_color.Bind(wx.EVT_BUTTON, self.configure_color)
         self.layout[2].Add(self.button_color,
                            flag = wx.ALIGN_LEFT | wx.ALL,
                            border = 0)
@@ -104,7 +104,7 @@ class Panel(wx.Panel):
                                         id = wx.ID_ANY,
                                         style = wx.TE_PROCESS_ENTER,
                                         size = (320, 32))
-#        self.text_message.Bind(wx.EVT_TEXT_ENTER, self.inet.post_message)
+        self.text_message.Bind(wx.EVT_TEXT_ENTER, self.inet.post_message)
         self.text_message.SetFont(DEFAULT_FONT)
         self.text_message.SetMaxLength(60)
         self.text_message.SetToolTipString("Message")
@@ -118,7 +118,7 @@ class Panel(wx.Panel):
                                      label = u"Post",
                                      size = (64, 32))
         self.button_send.SetFont(DEFAULT_FONT)
-#        self.button_send.Bind(wx.EVT_BUTTON, self.inet.post_message)
+        self.button_send.Bind(wx.EVT_BUTTON, self.inet.post_message)
         self.layout[2].Add(self.button_send,
                            flag = wx.ALIGN_LEFT | wx.ALL,
                            border = 0)
@@ -129,4 +129,37 @@ class Panel(wx.Panel):
                              flag = wx.EXPAND | wx.ALIGN_CENTER)
         self.layout_main.Add(self.layout[2], flag = wx.ALIGN_LEFT)
         self.SetSizer(self.layout_main)
+        return
+
+
+    def configure_color(self, event):
+        """ Asks the message color """
+        # Creates a new color dialog
+        dialog = wx.ColourDialog(None)
+        dialog.GetColourData().SetChooseFull(True)
+        dialog.GetColourData().SetColour(wx.Colour(self.message_color[0],
+                                                   self.message_color[1],
+                                                   self.message_color[2]))
+        # Asks the message color
+        if dialog.ShowModal() == wx.ID_OK:
+            # Reflects the new color
+            data = dialog.GetColourData()
+            self.message_color = data.GetColour().Get()
+            self.button_color.SetBackgroundColour(self.message_color)
+            self.button_color.SetForegroundColour(self.message_color)
+        dialog.Destroy()
+        return
+
+    def append_message(self, message):
+        """ Insert new message into the listview """
+        try:
+            index = self.list_history.GetItemCount()
+            self.list_history.InsertStringItem(index, message['message'])
+            self.list_history.SetStringItem(index, 1, message['date'])
+            self.list_history.SetStringItem(index, 2, message['id'])
+            # is master
+            if message['id'] == u"<master>":
+                self.list_history.SetItemTextColour(index, (255, 0, 0))
+        except:
+            return
         return
