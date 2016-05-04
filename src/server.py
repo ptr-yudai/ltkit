@@ -20,7 +20,6 @@ class ServerFrame(wx.Frame):
                           | wx.CAPTION
                           | wx.CLIP_CHILDREN,
                           size = (640, 480))
-        self.Bind(wx.EVT_CLOSE, self.onExit)
         # Create a new tab control
         self.tab_control = wx.Notebook(self,
                                        id = wx.ID_ANY,
@@ -35,12 +34,6 @@ class ServerFrame(wx.Frame):
         # Show this frame
         self.Center()
         self.Show()
-
-    def onExit(self, event):
-        """ Quit application """
-        self.server.thread.terminate()
-        self.Destroy()
-        return
 
 def main():
     # Initializes a new application

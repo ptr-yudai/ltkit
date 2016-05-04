@@ -1,4 +1,4 @@
-import multiprocessing
+import threading
 import wx
 from ..module import message
 
@@ -8,7 +8,8 @@ class Network:
         self.host = host
         self.port = port
         # Thread
-        self.thread = multiprocessing.Process(target = self.establish)
+        self.thread = threading.Thread(target = self.establish)
+        self.thread.setDaemon(True)
         self.thread.start()
         # Messanger
         self.message_viewer = message.MessageViewer(parent)
@@ -30,8 +31,8 @@ class Network:
         self.socket_list.append(self.server_socket)
         # Listen
         while True:
-            read_sockets, wrote_sockets, error_sockets = select.select(self.socket_list, [], [])
-            # 
+            read_sockets, wrote_sockets, error_sockets = select.select(self.socket_list, [], [], 1)
+            # Process
             for socket in read_sockets:
                 if socket == self.server_socket:
                     # New audience

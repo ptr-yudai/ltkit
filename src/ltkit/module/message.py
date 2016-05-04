@@ -25,7 +25,6 @@ class MessageViewer(wx.Frame):
 
     def __del__(self):
         """ Destroy MessageViewer class """
-        print("[DEBUG] MessageViewer is deleted.")
         return None
 
     def display_message(self, message):
