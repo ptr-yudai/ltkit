@@ -3,19 +3,58 @@ import wx
 from ..module import message
 
 class Network:
-    def __init__(self, parent, host, port):
+    def __init__(self, parent):
         """ Initialize Network class """
-        self.host = host
-        self.port = port
-        # Thread
-        self.thread = threading.Thread(target = self.establish)
-        self.thread.setDaemon(True)
-        self.thread.start()
+        # Inherit
+        self.server = parent
         # Messanger
         self.message_viewer = message.MessageViewer(parent)
         return
 
     def __del__(self):
+        # Kill thread
+        self.thread_stop.set()
+        self.thread.join()
+        return
+        
+    def create_socket(self, event):
+        """ Listen to the clients """
+        panel_post = self.server.panel_post
+        # Get the hostname
+        self.host = panel_post.text_ip.GetValue()
+        # Get the port number
+        try:
+            self.port = int(panel_post.text_port.GetValue())
+        except ValueError:
+            wx.MessageBox(u"The port number is invalid.\nOnly numeric characters can be used.",
+                          u"LT Toolkit",
+                          style = wx.OK | wx.ICON_ERROR)
+            return
+        # Disable 'standby' button
+        panel_post.button_standby.Disable()
+        # Start new thread
+        self.thread_stop = threading.Event()
+        self.thread = threading.Thread(target = self.establish)
+        self.thread.setDaemon(True)
+        self.thread.start()
+        # Enable 'standby' button
+        panel_post.button_standby.SetLabel(u"Stop")
+        panel_post.button_standby.Bind(wx.EVT_BUTTON, self.destroy_socket)
+        panel_post.button_standby.Enable()
+        return
+
+    def destroy_socket(self, event):
+        """ Stop listening """
+        panel_post = self.server.panel_post
+        # Disable 'disconnect' button
+        panel_post.button_standby.Disable()
+        # Kill thread
+        self.thread_stop.set()
+        self.thread.join()
+        # Enable 'connect' button
+        panel_post.button_standby.SetLabel(u"Standby")
+        panel_post.button_standby.Bind(wx.EVT_BUTTON, self.create_socket)
+        panel_post.button_standby.Enable()
         return
 
     def establish(self):
@@ -25,7 +64,6 @@ class Network:
         """ Establish a server and run it forever """
         self.socket_list = []
         self.id_list = {}
-        self.running = True
         # Open the port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.host, self.port))
@@ -51,8 +89,10 @@ class Network:
                         # Connection refused
                         socket.close()
                         self.socket_list.remove(socket)
-            # Check if the thread is closed
-            if self.running == False:
+            # Check the thread is killed
+            if self.thread_stop.is_set():
+                for socket in self.socket_list:
+                    socket.close()
                 break
             # Clear
             read_sockets = wrote_sockets = error_sockets = []
