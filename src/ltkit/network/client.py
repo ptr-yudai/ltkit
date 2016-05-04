@@ -63,13 +63,20 @@ class Network:
             if recv_data.get(u'type', None) == None:
                 continue
             # Process message depending on its type
-            if recv_data[u'type'] == u"message":
-                # Insert the message into the listview (in order to avoid assertionerror)
-                wx.CallAfter(panel_post.append_message, recv_data)
-            elif recv_data[u'type'] == u"question":
-                
-                # [DEBUG] Print debug string
-                print("question")
+            self.proc_message(recv_data)
+        return
+
+    def proc_message(self, recv_data):
+        """ Process the received message """
+        panel_post = self.client.panel_post
+        panel_questionnaire = self.client.panel_questionnaire
+        # Process
+        if recv_data[u'type'] == u"message":
+            # Insert the message into the listview (in order to avoid assertionerror)
+            wx.CallAfter(panel_post.append_message, recv_data)
+        elif recv_data[u'type'] == u"questionnaire":
+            # Displays the new questionnaire
+            wx.CallAfter(panel_questionnaire.display_questionnaire, recv_data)
         return
 
     def create_socket(self, event):

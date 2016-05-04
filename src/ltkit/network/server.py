@@ -1,10 +1,15 @@
 import threading
 import wx
 from ..module import message
+import packet
 
 class Network:
     def __init__(self, parent):
         """ Initialize Network class """
+        # var init
+        self.thread_stop = True
+        self.socket_list = []
+        self.id_list = {}
         # Inherit
         self.server = parent
         # Messanger
@@ -13,10 +18,64 @@ class Network:
 
     def __del__(self):
         # Kill thread
-        self.thread_stop.set()
-        self.thread.join()
+        if self.thread_stop != True: # but not False!
+            self.thread_stop.set()
+            self.thread.join()
         return
     
+    def post_questionnaire(self, event):
+        """ Post a questionnaire to all the clients """
+        panel_questionnaire = self.server.panel_questionnaire
+        # Disable button
+        panel_questionnaire.button_post.Disable()
+        # Create a message structure
+        message = {
+            "type": "questionnaire",
+            "available": True,
+            "question": panel_questionnaire.text_question.GetValue(),
+            "choice": [panel_questionnaire.list_choice.GetString(index)
+                       for index
+                       in range(panel_questionnaire.list_choice.GetCount())],
+            "date": wx.DateTime.Now().Format("%H:%M:%S")
+        }
+        # Post the questionnaire
+        self.broadcast(packet.compress(message))
+        # Disable interfaces
+        panel_questionnaire.text_question.Disable()
+        panel_questionnaire.button_add.Disable()
+        panel_questionnaire.button_delete.Disable()
+        panel_questionnaire.button_clear.Disable()
+        panel_questionnaire.list_choice.Disable()
+        # Enable 'post' button
+        panel_questionnaire.button_post.SetLabel(u"Close")
+        panel_questionnaire.button_post.Bind(wx.EVT_BUTTON, self.close_questionnaire)
+        panel_questionnaire.button_post.Enable()
+        return
+
+    def close_questionnaire(self, event):
+        """ Close the questionnaire """
+        panel_questionnaire = self.server.panel_questionnaire
+        # Disable button
+        panel_questionnaire.button_post.Disable()
+        # Create a message structure
+        message = {
+            "type": "questionnaire",
+            "available": False,
+            "date": wx.DateTime.Now().Format("%H:%M:%S")
+        }
+        # Post the questionnaire
+        self.broadcast(packet.compress(message))
+        # Enable interfaces
+        panel_questionnaire.text_question.Enable()
+        panel_questionnaire.button_add.Enable()
+        panel_questionnaire.button_delete.Enable()
+        panel_questionnaire.button_clear.Enable()
+        panel_questionnaire.list_choice.Enable()
+        # Enable 'post' button
+        panel_questionnaire.button_post.SetLabel(u"Post")
+        panel_questionnaire.button_post.Bind(wx.EVT_BUTTON, self.post_questionnaire)
+        panel_questionnaire.button_post.Enable()
+        return
 
     def post_message(self, event):
         """ Post a message to all the clients """
@@ -89,17 +148,13 @@ class Network:
         import socket
         import packet
         """ Establish a server and run it forever """
-        self.socket_list = []
-        self.id_list = {}
         # Open the port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.server_socket.bind((self.host, self.port))
         except:
             # Failed to open the port
-            wx.MessageBox(u"Failed to open the port {0}.\nPlease make sure that the port is not in use now.".format(self.port),
-                          u"LT Toolkit",
-                          style = wx.OK | wx.ICON_ERROR)
+            wx.CallAfter(self.establish_fail)
             return
         self.server_socket.listen(10)
         self.socket_list.append(self.server_socket)
@@ -132,6 +187,18 @@ class Network:
             read_sockets = wrote_sockets = error_sockets = []
         return
 
+    def establish_fail(self):
+        """ Failed to establish a server. """
+        # Dialog
+        wx.MessageBox(u"Failed to open the port {0}.\nPlease make sure that the port is not in use now.".format(self.port),
+                      u"LT Toolkit",
+                      style = wx.OK | wx.ICON_ERROR)
+        # Enable 'standby' button
+        panel_post.button_standby.SetLabel(u"Standby")
+        panel_post.button_standby.Bind(wx.EVT_BUTTON, self.create_socket)
+        panel_post.button_standby.Enable()
+        return
+
     def proc_message(self, socket, recv_data):
         """ Process received message """
         import packet
@@ -160,9 +227,6 @@ class Network:
 
     def broadcast(self, send_data):
         """ Broadcast message """
-        # Check data
-        if send_data == "":
-            return
         # Broadcast
         for socket in self.socket_list:
             if socket != self.server_socket:

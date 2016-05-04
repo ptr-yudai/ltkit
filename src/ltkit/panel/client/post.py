@@ -27,7 +27,7 @@ class Panel(wx.Panel):
         # Creates a button to create a soket
         self.button_connect = wx.Button(self,
                                         id = wx.ID_ANY,
-                                        label = u"Connect",
+                                        label = "Connect",
                                         size = (96, 32))
         self.button_connect.SetFont(DEFAULT_FONT)
         self.button_connect.Bind(wx.EVT_BUTTON, self.inet.create_socket)
@@ -161,9 +161,9 @@ class Panel(wx.Panel):
             self.list_history.SetStringItem(index, 1, message['date'])
             self.list_history.SetStringItem(index, 2, message['id'])
             # is master
-            if message['id'] == u"<master>":
+            if message['id'] == "<master>":
                 self.list_history.SetItemTextColour(index, (255, 0, 0))
         except:
-            return
+            pass
         return
 

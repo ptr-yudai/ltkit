@@ -19,89 +19,73 @@ class Panel(wx.Panel):
                                wx.FONTWEIGHT_NORMAL)
         # Creates sizer
         self.layout_main = wx.BoxSizer(wx.VERTICAL)
-        self.layout = []
-        for i in range(3):
-            self.layout.append(wx.BoxSizer(wx.HORIZONTAL))
+        self.layout = [wx.BoxSizer(wx.HORIZONTAL),
+                       wx.BoxSizer(wx.VERTICAL),
+                       wx.BoxSizer(wx.HORIZONTAL)]
         # text = "No questionnaire"
-        label = wx.StaticText(self,
-                              id = wx.ID_ANY,
-                              label = u"No questionnaire.")
-        label.SetFont(DEFAULT_FONT)
-        self.layout[0].Add(label,
+        self.label_question = wx.StaticText(self,
+                                            id = wx.ID_ANY,
+                                            label = "No questionnaire.")
+        self.label_question.SetFont(DEFAULT_FONT)
+        self.layout[0].Add(self.label_question,
                            flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                            border = 8)
+        # Prepare for radio buttons
+        
+        # Create a button to post the answer
+        self.button_answer = wx.Button(self,
+                                       id = wx.ID_ANY,
+                                       label = "Answer",
+                                       size = (96, 32))
+        self.button_answer.SetFont(DEFAULT_FONT)
+#        self.button_connect.Bind(wx.EVT_BUTTON, self.inet.create_socket)
+        self.layout[2].Add(self.button_answer,
+                           flag = wx.EXPAND | wx.ALIGN_RIGHT | wx.ALL,
+                           border = 8)
         # Sets sizer
-        self.layout_main.Add(self.layout[0], flag = wx.ALIGN_TOP)
+        self.layout_main.Add(self.layout[0],
+                             flag = wx.ALIGN_TOP)
         self.layout_main.Add(self.layout[1],
                              proportion = 1,
                              flag = wx.EXPAND | wx.ALIGN_CENTER)
-        self.layout_main.Add(self.layout[2], flag = wx.ALIGN_BOTTOM)
+        self.layout_main.Add(self.layout[2],
+                             flag = wx.ALIGN_BOTTOM | wx.ALIGN_RIGHT)
         self.SetSizer(self.layout_main)
         return
-        
-    def configure_color(self, event):
-        """ Asks the message color """
-        # Creates a new color dialog
-        dialog = wx.ColourDialog(None)
-        dialog.GetColourData().SetChooseFull(True)
-        dialog.GetColourData().SetColour(wx.Colour(self.message_color[0],
-                                                   self.message_color[1],
-                                                   self.message_color[2]))
-        # Asks the message color
-        if dialog.ShowModal() == wx.ID_OK:
-            # Reflects the new color
-            data = dialog.GetColourData()
-            self.message_color = data.GetColour().Get()
-            self.button_color.SetBackgroundColour(self.message_color)
-            self.button_color.SetForegroundColour(self.message_color)
-        dialog.Destroy()
+
+    def display_questionnaire(self, message):
+        """ Display the questionnaire """
+        # new font
+        DEFAULT_FONT = wx.Font(12,
+                               wx.FONTFAMILY_DEFAULT,
+                               wx.FONTSTYLE_NORMAL,
+                               wx.FONTWEIGHT_NORMAL)
+        try:
+            if message['available'] == True:
+                # Clear all
+                self.clear_questionnaire(message['date'])
+                # Set new questionnaire
+                self.label_question.SetLabel(message['question'])
+                # Set choices
+                for choice in message['choice']:
+                    radio_choice = wx.RadioButton(self,
+                                                  id = wx.ID_ANY,
+                                                  label = choice)
+                    radio_choice.SetFont(DEFAULT_FONT)
+                    self.layout[1].Add(radio_choice,
+                                       flag = wx.ALIGN_LEFT | wx.ALL)
+                self.layout_main.Layout()
+            else:
+                # Clear all
+                self.clear_questionnaire(message['date'])
+        except:
+            pass
         return
 
-    def connect(self, event):
-        """ Connects to the server """
-        # Gets the hostname
-        host = self.text_ip.GetValue()
-        # Gets the port number
-        try:
-            port = int(self.text_port.GetValue())
-        except ValueError:
-            wx.MessageBox("The port number is invalid.\nOnly numeric characters can be used.",
-                          "LT Toolkit",
-                          style = wx.OK | wx.ICON_ERROR)
-            return
-        # Disables 'connect' button
-        self.button_connect.Disable()
-        # Creates new socket
-        if self.socket != None:
-            self.socket.close()
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(10.0) # timeout
-        # Tries to connect to the host
-        try:
-            self.socket.connect((host, port))
-        except socket.timeout:
-            # Timeout
-            wx.MessageBox("Timeout!",
-                          "LT Toolkit",
-                          style = wx.OK | wx.ICON_ERROR)
-            self.socket = None
-            # Enables 'connect' button
-            self.button_connect.Enable()
-            return
-        except:
-            # Failed to connect
-            wx.MessageBox("Failed to connect to {0}:{1}.\nPlease make sure that the hostname and the port number you entered is correct.".format(host, port),
-                          "LT Toolkit",
-                          style = wx.OK | wx.ICON_ERROR)
-            self.socket = None
-            # Enables 'connect' button
-            self.button_connect.Enable()
-            return
-        self.socket.close()
-        # Enables 'connect' button
-        self.button_connect.Enable()
-        return
-    
-    def post_message(self, event):
-        self.text_message.Clear()
+    def clear_questionnaire(self, date):
+        """ Clear current questionnaire """
+        # Set empty label
+        self.label_question.SetLabel("No questionnaire. (Closed on {0})".format(date))
+        # Destroy all the radio buttons
+        self.layout[1].DeleteWindows()
         return

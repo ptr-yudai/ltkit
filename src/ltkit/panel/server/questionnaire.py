@@ -4,8 +4,10 @@ class Panel(wx.Panel):
     """ Creates a panel of the questionnaire
     This class is a panel which has all functions for the questionaries.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, inet):
         """ Initialize Panel class """
+        # Inherit
+        self.inet = inet
         # new panel
         wx.Panel.__init__(self,
                           parent)
@@ -54,6 +56,16 @@ class Panel(wx.Panel):
         self.layout[1].Add(self.button_delete,
                            flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                            border = 8)
+        # Create a button to clear all items
+        self.button_clear = wx.Button(self,
+                                    id = wx.ID_ANY,
+                                    label = u"Clear All",
+                                    size = (128, 32))
+        self.button_clear.SetFont(DEFAULT_FONT)
+        self.button_clear.Bind(wx.EVT_BUTTON, self.clear_choice)
+        self.layout[1].Add(self.button_clear,
+                           flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
+                           border = 8)
         # Create a list control
         self.list_choice = wx.ListBox(self,
                                       wx.ID_ANY,
@@ -66,13 +78,13 @@ class Panel(wx.Panel):
                            proportion = 1,
                            flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                            border = 8)
-        # Create a button
+        # Create a button to post the qeustionnaire
         self.button_post = wx.Button(self,
                                     id = wx.ID_ANY,
                                      label = u"Post",
                                     size = (128, 32))
         self.button_post.SetFont(DEFAULT_FONT)
-#        self.button_add.Bind(wx.EVT_BUTTON, self.inet.create_socket)
+        self.button_post.Bind(wx.EVT_BUTTON, self.inet.post_questionnaire)
         self.layout[3].Add(self.button_post,
                            flag = wx.EXPAND | wx.ALIGN_RIGHT | wx.ALL,
                            border = 8)
@@ -100,6 +112,26 @@ class Panel(wx.Panel):
 
     def delete_choice(self, event):
         """ Delete the selected choice """
-        
+        # Get the index of the selected item
+        index = self.list_choice.GetSelection()
+        # Check if nothing is selected
+        if index == wx.NOT_FOUND:
+            wx.MessageBox(u"Please select an item to remove from the choice.",
+                          u"LT Toolkit",
+                          style = wx.OK | wx.ICON_ERROR)
+            return
+        # Delete the selected item
+        self.list_choice.Delete(index)
         return
         
+    def clear_choice(self, event):
+        """ Clear all the choices """
+        # Ask
+        dialog = wx.MessageDialog(None,
+                                  "Are you sure that you want to remove all the choices?",
+                                  "LT Toolkit",
+                                  style = wx.YES_NO | wx.ICON_QUESTION)
+        if dialog.ShowModal() == wx.ID_YES:
+            # YES pushed
+            self.list_choice.Clear()
+        return
