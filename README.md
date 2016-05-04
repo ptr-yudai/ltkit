@@ -10,7 +10,7 @@ A toolkit to make your presentation nicer
 * 聴衆からのコメントを画面に表示する。  
 * 視聴者にアンケートを取る。  
 
-This application will provides the following functions to your presentation. (in the future)  
+This application will provide your presentation the following functions. (in the future)  
 * To display the messages posted by the audience on the desktop screen.  
 * To ask the audience some questionaries.  
 
