@@ -14,7 +14,11 @@ This application will provide your presentation the following functions. (in the
 * To display the messages posted by the audience on the desktop screen.  
 * To ask the audience some questionaries.  
 
-## Demo
+## Bug
+
+* 空白文字を投稿すると不定形リージョンのウィンドウが壊れます。
+
+* Posting some space characters make the shaped window corrupted.
 
 ## VS. 
 
