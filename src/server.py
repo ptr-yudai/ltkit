@@ -20,6 +20,7 @@ class ServerFrame(wx.Frame):
                           | wx.CAPTION
                           | wx.CLIP_CHILDREN,
                           size = (640, 480))
+        #self.Bind(wx.EVT_CLOSE, self.on_exit)
         # Create a new tab control
         self.tab_control = wx.Notebook(self,
                                        id = wx.ID_ANY,
@@ -27,13 +28,18 @@ class ServerFrame(wx.Frame):
                                        size = self.GetSize())
 #        self.panel_post = post.Panel(self.tab_control, self.inet)
         self.panel_questionnaire = questionnaire.Panel(self.tab_control)
-#        self.tab_control.AddPage(self.panel_post, "Listen")
+#        self.tab_control.AddPage(self.panel_post, "Post")
         self.tab_control.AddPage(self.panel_questionnaire, "Questionnaire")
         # Create server
         self.server = server.Network(self, "127.0.0.1", 8080)
         # Show this frame
         self.Center()
         self.Show()
+
+    def __del__(self):
+        """ Destoructor """
+        self.server.running = False
+        return
 
 def main():
     # Initializes a new application
