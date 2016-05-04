@@ -79,7 +79,6 @@ class Network:
         else:
             # Invalid
             return
-        # [DEBUG] Print debug string
         return
 
     def broadcast(self, send_data):
