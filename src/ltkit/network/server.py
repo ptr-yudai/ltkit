@@ -50,6 +50,8 @@ class Network:
         panel_questionnaire.button_post.SetLabel(u"Close")
         panel_questionnaire.button_post.Bind(wx.EVT_BUTTON, self.close_questionnaire)
         panel_questionnaire.button_post.Enable()
+        # Answer dict
+        self.questionnaire_answer = {}
         return
 
     def close_questionnaire(self, event):
@@ -75,6 +77,8 @@ class Network:
         panel_questionnaire.button_post.SetLabel(u"Post")
         panel_questionnaire.button_post.Bind(wx.EVT_BUTTON, self.post_questionnaire)
         panel_questionnaire.button_post.Enable()
+        # Show the result
+        wx.CallAfter(self.display_questionnaire_result)
         return
 
     def post_message(self, event):
@@ -221,8 +225,8 @@ class Network:
             # Dispay the message (avoid assertionerror)
             wx.CallAfter(self.display_message, recv_data)
         elif recv_data['type'] == "questionnaire":
-            # 
-            print recv_data['choice']
+            # Set choice
+            self.questionnaire_answer[socket] = recv_data['choice']
             return
         return
 
@@ -247,4 +251,83 @@ class Network:
     def display_message(self, recv_data):
         """ Display a message on the desktop screen (with using the MessageViewer class)"""
         self.message_viewer.display_message(recv_data)
+        return
+        
+    def display_questionnaire_result(self):
+        """ Display the result of the questionnaire """
+        panel_questionnaire = self.server.panel_questionnaire
+        # Get number of items
+        num_item = panel_questionnaire.list_choice.GetCount()
+        # Create a modal frame
+        self.dialog = wx.Dialog(parent = self.server,
+                                title = "Aggregate Results - LT Toolkit",
+                                size = (400, 250),
+                                style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        self.dialog.SetMinSize((400, 250))
+        panel = wx.ScrolledWindow(self.dialog, id = wx.ID_ANY)
+        # new font
+        DEFAULT_FONT = wx.Font(12,
+                               wx.FONTFAMILY_DEFAULT,
+                               wx.FONTSTYLE_NORMAL,
+                               wx.FONTWEIGHT_NORMAL)
+        # new sizer
+        dialog_layout_main = wx.BoxSizer(wx.VERTICAL)
+        dialog_layout = [wx.FlexGridSizer(num_item + 1, 2),
+                         wx.BoxSizer(wx.HORIZONTAL)]
+        # Qeustion
+        label = wx.StaticText(self.dialog,
+                              id = wx.ID_ANY,
+                              label = panel_questionnaire.text_question.GetValue())
+        label.SetFont(DEFAULT_FONT)
+        dialog_layout[0].Add(label,
+                             flag = wx.ALL | wx.GROW,
+                             border = 16)
+        label = wx.StaticText(self.dialog,
+                              id = wx.ID_ANY)
+        dialog_layout[0].Add(label,
+                             flag = wx.GROW)
+        # Add the results
+        for i in range(num_item):
+            label_choice = wx.StaticText(self.dialog,
+                                         id = wx.ID_ANY,
+                                         label = panel_questionnaire.list_choice.GetString(i))
+            label_number = wx.StaticText(self.dialog,
+                                         id = wx.ID_ANY,
+                                         label = "--> " + str(self.questionnaire_answer.values().count(i)))
+            label_choice.SetFont(DEFAULT_FONT)
+            label_number.SetFont(DEFAULT_FONT)
+            dialog_layout[0].Add(label_choice,
+                                 flag = wx.ALL | wx.GROW,
+                                 border = 4)
+            dialog_layout[0].Add(label_number,
+                                 flag = wx.ALL | wx.GROW,
+                                 border = 4)
+        # Close button
+        button_close = wx.Button(self.dialog,
+                                 id = wx.ID_ANY,
+                                 label = "Close",
+                                 size = (96, 32))
+        button_close.SetFont(DEFAULT_FONT)
+        button_close.Bind(wx.EVT_BUTTON, self.destroy_dialog)
+        dialog_layout[1].Add(button_close,
+                             flag = wx.ALIGN_CENTER | wx.ALL)
+        # Set layout
+        dialog_layout[0].AddGrowableCol(0)
+        dialog_layout_main.Add(dialog_layout[0],
+                               proportion = 1,
+                               flag = wx.EXPAND | wx.ALL,
+                               border = 4)
+        dialog_layout_main.Add(dialog_layout[1],
+                               flag = wx.ALIGN_CENTER | wx.ALL,
+                               border = 8)
+        self.dialog.SetSizer(dialog_layout_main)
+        self.dialog.Layout()
+        self.dialog.Center(wx.BOTH)
+        # Show the dialog
+        self.dialog.ShowModal()
+        return
+
+    def destroy_dialog(self, event):
+        """ Destroy modal dialog """
+        self.dialog.Destroy()
         return
