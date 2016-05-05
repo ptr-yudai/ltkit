@@ -32,7 +32,7 @@ class ClientFrame(wx.Frame):
                                        style = wx.NB_TOP,
                                        size = self.GetSize())
         self.panel_post = post.Panel(self.tab_control, self.inet)
-        self.panel_questionnaire = questionnaire.Panel(self.tab_control)
+        self.panel_questionnaire = questionnaire.Panel(self.tab_control, self.inet)
         self.tab_control.AddPage(self.panel_post, "Post")
         self.tab_control.AddPage(self.panel_questionnaire, "Questionnaire")
         # Show this frame

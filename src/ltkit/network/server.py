@@ -131,16 +131,16 @@ class Network:
 
     def destroy_socket(self, event):
         """ Stop listening """
-        panel_post = self.server.panel_post
+        panel_questionnaire = self.server.panel_questionnaire
         # Disable 'disconnect' button
-        panel_post.button_standby.Disable()
+        panel_questionnaire.button_standby.Disable()
         # Kill thread
         self.thread_stop.set()
         self.thread.join()
         # Enable 'connect' button
-        panel_post.button_standby.SetLabel(u"Standby")
-        panel_post.button_standby.Bind(wx.EVT_BUTTON, self.create_socket)
-        panel_post.button_standby.Enable()
+        panel_questionnaire.button_standby.SetLabel(u"Standby")
+        panel_questionnaire.button_standby.Bind(wx.EVT_BUTTON, self.create_socket)
+        panel_questionnaire.button_standby.Enable()
         return
 
     def establish(self):
@@ -204,24 +204,25 @@ class Network:
         import packet
         panel_post = self.server.panel_post
         # Check type
-        if recv_data.get(u'type', None) == None:
+        if recv_data.get('type', None) == None:
             return
         # Append some data
-        if recv_data[u'type'] == "message":
+        if recv_data['type'] == "message":
             # Create message structure
             if self.id_list.get(socket, None) == None:
-                recv_data[u'id'] = u"<unknown>"
+                recv_data['id'] = "<unknown>"
             else:
-                recv_data[u'id'] = self.id_list[socket]
-            recv_data[u'date'] = wx.DateTime.Now().Format("%H:%M:%S")
+                recv_data['id'] = self.id_list[socket]
+            recv_data['date'] = wx.DateTime.Now().Format("%H:%M:%S")
             # Send to all client
             self.broadcast(packet.compress(recv_data))
             # Append the message onto the listview
             wx.CallAfter(panel_post.append_message, recv_data)
             # Dispay the message (avoid assertionerror)
             wx.CallAfter(self.display_message, recv_data)
-        else:
-            # Invalid
+        elif recv_data['type'] == "questionnaire":
+            # 
+            print recv_data['choice']
             return
         return
 

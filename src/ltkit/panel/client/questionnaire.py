@@ -4,11 +4,12 @@ class Panel(wx.Panel):
     """ Creates a panel of the questionnaire
     This class is a panel which has all functions for the questionaries.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, inet):
         """ Initializes Panel """
         # Inits variables
         self.message_color = (240, 240, 240)
         self.socket = None
+        self.inet = inet
         # new panel
         wx.Panel.__init__(self,
                           parent)
@@ -31,14 +32,15 @@ class Panel(wx.Panel):
                            flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                            border = 8)
         # Prepare for radio buttons
-        
+        self.radio_choice = []
         # Create a button to post the answer
         self.button_answer = wx.Button(self,
                                        id = wx.ID_ANY,
                                        label = "Answer",
                                        size = (96, 32))
         self.button_answer.SetFont(DEFAULT_FONT)
-#        self.button_connect.Bind(wx.EVT_BUTTON, self.inet.create_socket)
+        self.button_answer.Disable()
+        self.button_answer.Bind(wx.EVT_BUTTON, self.inet.post_answer)
         self.layout[2].Add(self.button_answer,
                            flag = wx.EXPAND | wx.ALIGN_RIGHT | wx.ALL,
                            border = 8)
@@ -68,16 +70,18 @@ class Panel(wx.Panel):
                 self.label_question.SetLabel(message['question'])
                 # Set choices
                 for choice in message['choice']:
-                    radio_choice = wx.RadioButton(self,
-                                                  id = wx.ID_ANY,
-                                                  label = choice)
-                    radio_choice.SetFont(DEFAULT_FONT)
-                    self.layout[1].Add(radio_choice,
+                    self.radio_choice.append(wx.RadioButton(self,
+                                                            id = wx.ID_ANY,
+                                                            label = choice))
+                    self.radio_choice[-1].SetFont(DEFAULT_FONT)
+                    self.layout[1].Add(self.radio_choice[-1],
                                        flag = wx.ALIGN_LEFT | wx.ALL)
                 self.layout_main.Layout()
+                self.button_answer.Enable()
             else:
                 # Clear all
                 self.clear_questionnaire(message['date'])
+                self.button_answer.Disable()
         except:
             pass
         return
@@ -88,4 +92,5 @@ class Panel(wx.Panel):
         self.label_question.SetLabel("No questionnaire. (Closed on {0})".format(date))
         # Destroy all the radio buttons
         self.layout[1].DeleteWindows()
+        self.radio_choice = []
         return

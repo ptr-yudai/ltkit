@@ -14,6 +14,41 @@ class Network:
         self.client_socket = None
         return
 
+    def post_answer(self, event):
+        """ Post an answer to the server """
+        panel_questionnaire = self.client.panel_questionnaire
+        # Check if it's already connected
+        if self.client_socket == None:
+            wx.MessageBox(u"You are not connected to the host.\nPlease connect to the host first.",
+                          u"LT Toolkit",
+                          style = wx.OK | wx.ICON_ERROR)
+            return
+        # Ask
+        dialog = wx.MessageDialog(None,
+                                  "Are you sure that you want to send your answer now?",
+                                  "LT Toolkit",
+                                  style = wx.YES_NO | wx.ICON_QUESTION)
+        if dialog.ShowModal() == wx.ID_NO:
+            return
+        # Get selected item
+        checked = 0
+        for (checked, obj) in enumerate(panel_questionnaire.radio_choice):
+            if obj.GetValue() == True: break
+        # Create a message structure
+        message = {
+            "type": "questionnaire",
+            "choice": checked
+        }
+        # Compress the message
+        send_data = packet.compress(message)
+        # Post the message
+        self.client_socket.send(send_data)
+        # Display message
+        wx.MessageBox("You answer was sent successfully.",
+                      "LT Toolkit",
+                      style = wx.OK | wx.ICON_INFORMATION)
+        return
+
     def post_message(self, event):
         """ Post a message to the server """
         panel_post = self.client.panel_post
