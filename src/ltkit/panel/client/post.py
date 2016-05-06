@@ -163,6 +163,7 @@ class Panel(wx.Panel):
             # is master
             if message['id'] == "<master>":
                 self.list_history.SetItemTextColour(index, (255, 0, 0))
+            self.list_history.EnsureVisible(index)
         except:
             pass
         return

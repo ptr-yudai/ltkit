@@ -135,16 +135,16 @@ class Network:
 
     def destroy_socket(self, event):
         """ Stop listening """
-        panel_questionnaire = self.server.panel_questionnaire
+        panel_post = self.server.panel_post
         # Disable 'disconnect' button
-        panel_questionnaire.button_standby.Disable()
+        panel_post.button_standby.Disable()
         # Kill thread
         self.thread_stop.set()
         self.thread.join()
         # Enable 'connect' button
-        panel_questionnaire.button_standby.SetLabel(u"Standby")
-        panel_questionnaire.button_standby.Bind(wx.EVT_BUTTON, self.create_socket)
-        panel_questionnaire.button_standby.Enable()
+        panel_post.button_standby.SetLabel(u"Standby")
+        panel_post.button_standby.Bind(wx.EVT_BUTTON, self.create_socket)
+        panel_post.button_standby.Enable()
         return
 
     def establish(self):
