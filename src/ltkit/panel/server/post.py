@@ -41,7 +41,7 @@ class Panel(wx.Panel):
         # Creates a text control to enter the hostname into
         self.text_ip = wx.TextCtrl(self,
                                    id = wx.ID_ANY,
-                                   value = u"127.0.0.1",
+                                   value = self.getmyip(),
                                    size = (256, 32))
         self.text_ip.SetFont(DEFAULT_FONT)
         self.text_ip.SetToolTipString(u"Hostname or IP address")
@@ -149,6 +149,14 @@ class Panel(wx.Panel):
             self.button_color.SetForegroundColour(self.message_color)
         dialog.Destroy()
         return
+
+    def getmyip(self):
+        import socket
+        return [(s.connect(('8.8.8.8', 80)),
+                 s.getsockname()[0],
+                 s.close()) for s
+                in [socket.socket(socket.AF_INET,
+                                  socket.SOCK_DGRAM)]][0][1];
 
     def append_message(self, message):
         """ Insert new message into the listview """
