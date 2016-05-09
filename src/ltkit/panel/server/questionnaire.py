@@ -78,6 +78,14 @@ class Panel(wx.Panel):
                            proportion = 1,
                            flag = wx.EXPAND | wx.ALIGN_LEFT | wx.ALL,
                            border = 8)
+        # text = "Received ? answers."
+        self.label_received = wx.StaticText(self,
+                                            id = wx.ID_ANY,
+                                            label = "")
+        self.label_received.SetFont(DEFAULT_FONT)
+        self.layout[3].Add(self.label_received,
+                           flag = wx.EXPAND | wx.ALIGN_RIGHT | wx.ALL,
+                           border = 8)
         # Create a button to post the qeustionnaire
         self.button_post = wx.Button(self,
                                     id = wx.ID_ANY,
@@ -94,7 +102,7 @@ class Panel(wx.Panel):
         self.layout_main.Add(self.layout[2],
                              proportion = 1,
                              flag = wx.EXPAND | wx.ALIGN_CENTER)
-        self.layout_main.Add(self.layout[3], flag = wx.ALIGN_BOTTOM | wx.ALIGN_RIGHT) 
+        self.layout_main.Add(self.layout[3], flag = wx.ALIGN_BOTTOM | wx.ALIGN_RIGHT)
         self.SetSizer(self.layout_main)
         return
 
@@ -134,4 +142,11 @@ class Panel(wx.Panel):
         if dialog.ShowModal() == wx.ID_YES:
             # YES pushed
             self.list_choice.Clear()
+        return
+
+    def proc_new_answer(self, answer):
+        """ Count up for new answer """
+        self.label_received.SetLabel("You have received {0} answer{1}.".format(len(answer), 's' if len(answer) > 1 else ''))
+        self.layout[3].Layout()
+        self.layout_main.Layout()
         return

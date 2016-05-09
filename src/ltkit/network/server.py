@@ -207,6 +207,7 @@ class Network:
         """ Process received message """
         import packet
         panel_post = self.server.panel_post
+        panel_questionnaire = self.server.panel_questionnaire
         # Check type
         if recv_data.get('type', None) == None:
             return
@@ -227,6 +228,8 @@ class Network:
         elif recv_data['type'] == "questionnaire":
             # Set choice
             self.questionnaire_answer[socket] = recv_data['choice']
+            # Count up
+            wx.CallAfter(panel_questionnaire.proc_new_answer, self.questionnaire_answer)
             return
         return
 
