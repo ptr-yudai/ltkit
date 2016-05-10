@@ -125,8 +125,8 @@ class MessageViewer(wx.Frame):
             self.frame_size[0] += message['size'] / 10 # adds
             self.frame_size[1] += message['size'] / 10 # shadow size
             # Expands frame size
-            if self.frame_size[0] <= wx.DisplaySize()[0]:
-                self.frame_size[0] = wx.DisplaySize()[0] + 1
+            if self.frame_size[0] <= self.display_size()[0]:
+                self.frame_size[0] = self.display_size()[0] + 1
             # Creates and selects a new bitmap
             bitmap = wx.EmptyBitmap(self.frame_size[0], self.frame_size[1])
             dc.SelectObject(bitmap)
@@ -160,6 +160,10 @@ class MessageViewer(wx.Frame):
                 mask_color[0] += 1
             return tuple(mask_color)
 
+        def display_size(self):
+            displays = (wx.Display(i) for i in range(wx.Display.GetCount()))
+            return [display.GetGeometry().GetSize() for display in displays][0]
+
         def filter_message(self, message):
             """ Fixes the message structure and checks the banned words """
             # Fixes the message structure
@@ -169,10 +173,10 @@ class MessageViewer(wx.Frame):
 
             if message.get('position', None) == None:
                 # no position -> default position
-                message['position'] = (wx.GetDisplaySize()[0], 0)
+                message['position'] = (self.display_size()[0], 0)
 
             if message.get('size', None) == None:
-                #
+                # Size
                 message['size'] = 16
 
             if message.get('color', None) == None:
