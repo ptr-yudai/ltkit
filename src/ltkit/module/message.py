@@ -13,6 +13,8 @@ class MessageViewer(wx.Frame):
     
     def __init__(self, parent):
         """ Initializes MessageViewer class """
+        # Init var
+        self.pos_list = []
         # Create a new frame (main frame)
         wx.Frame.__init__(self,
                           parent,
@@ -30,7 +32,7 @@ class MessageViewer(wx.Frame):
     def display_message(self, message):
         """ Creates new message window """
         # Creates a new message frame
-        MessageViewer.MessageWindow(message)
+        MessageViewer.MessageWindow(message, self.pos_list)
         return None
 
     class MessageWindow(wx.Frame):
@@ -44,10 +46,11 @@ class MessageViewer(wx.Frame):
             frame_size : the size of the width and the height of the frame
             timer_move : a timer that is called when the frame needs to move
         """
-        def __init__(self, message):
+        def __init__(self, message, pos_list):
             """ Initializes MessageWindow """
             # Filter (Fixes message structure and blocks banned words.)
-            self.filter_message(message)
+            self.pos_list = pos_list
+            self.filter_message(message, pos_list)
             # new visible frame (message)
             wx.Frame.__init__(self,
                               None,
@@ -71,6 +74,7 @@ class MessageViewer(wx.Frame):
             self.Bind(wx.EVT_TIMER, self.OnTimer, id = wx.ID_ANY)
             # Starts the timer
             self.timer_move.Start(message['speed'])
+            self.pos_list.append(self.frame_pos)
             # Shows this frame
             self.Show(True)
             return None
@@ -84,6 +88,8 @@ class MessageViewer(wx.Frame):
                 # Kills the frame when it goes out of the screen
                 self.timer_move.Stop()
                 self.Destroy()
+                if self.frame_pos in self.pos_list:
+                    self.pos_list.remove(self.frame_pos)
                 del self
             return None
 
@@ -101,7 +107,7 @@ class MessageViewer(wx.Frame):
         def create_shape(self):
             """ Creates a shaped window """
             # Sets the window position and size
-            self.SetPosition(self.frame_pos)
+            self.SetPosition((self.frame_pos[0], self.frame_pos[1]))
             self.SetClientSize(tuple(self.frame_size))
             # Sets a new shape
             dc = wx.ClientDC(self)
@@ -164,20 +170,28 @@ class MessageViewer(wx.Frame):
             displays = (wx.Display(i) for i in range(wx.Display.GetCount()))
             return [display.GetGeometry().GetSize() for display in displays][0]
 
-        def filter_message(self, message):
+        def filter_message(self, message, pos_list):
             """ Fixes the message structure and checks the banned words """
             # Fixes the message structure
             if message.get('message', None) == None:
                 # no message
                 return False
 
-            if message.get('position', None) == None:
-                # no position -> default position
-                message['position'] = (self.display_size()[0], 0)
-
             if message.get('size', None) == None:
                 # Size
                 message['size'] = 16
+
+            if message.get('position', None) == None:
+                # no position -> default position
+                y = 0
+                y_list = []
+                for pos in pos_list:
+                    y_list.append(pos[1])
+                while True:
+                    if y not in y_list:
+                        break
+                    y += message['size']
+                message['position'] = (self.display_size()[0], y)
 
             if message.get('color', None) == None:
                 # no color
@@ -192,8 +206,6 @@ class MessageViewer(wx.Frame):
             elif message['speed'] < 1 or message['speed'] > 20:
                 # invalid speed
                 message['speed'] = 8
-
-            
 
             # Checks the banned expressions
             return True
