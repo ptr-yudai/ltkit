@@ -91,6 +91,8 @@ class MessageViewer(wx.Frame):
                 if self.frame_pos in self.pos_list:
                     self.pos_list.remove(self.frame_pos)
                 del self
+            # Stay on top
+            self.SetWindowStyle(self.GetWindowStyle() | wx.STAY_ON_TOP)
             return None
 
         def OnPaint(self, event):
